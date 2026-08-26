@@ -5,33 +5,25 @@ import java.util.Scanner;
 public class main {
 
     static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        int p; // process
-        int tq; // time quantum
+        Scanner in = new Scanner(System.in);
+        int n; // process count
+        int q; // time quantum
 
-        System.out.print("Number of process(es)? (<= 6)" );
-        p = sc.nextInt();
-        int at[] = new int[p]; // arrival time
-        int bt[] = new int[p]; // burst time
+        System.out.print("Number of process(es)? < 6: " );
+        n = in.nextInt();
+        int[] arrival = new int[n];
+        int[] burst = new int[n];
 
-        for (int i = 0; i < p; i++) {
+        for (int i = 0; i < n; i++) {
             System.out.print("Enter Arrival time for P" + (i + 1) + ": ");
-            at[i] = sc.nextInt();
+            arrival[i] = in.nextInt();
 
             System.out.print("Enter Burst time for P" + (i + 1) + ": ");
-            bt[i] = sc.nextInt();
+            burst[i] = in.nextInt();
         }
         System.out.print("Enter time quantum: ");
-        tq = sc.nextInt();
+        q = in.nextInt();
 
-        // gantt chart generator
-        String rrGanttChart = ganttChart.generateRoundRobin(at, bt, tq);
-        System.out.println(rrGanttChart);
-
-
-//        for(String name: pName){
-//            System.out.printf(name + " ");
-//        }
-
+        ganttChart.printRoundRobin(arrival, burst, q);
     }
 }
