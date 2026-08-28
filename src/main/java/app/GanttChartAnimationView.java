@@ -25,7 +25,7 @@ public class GanttChartAnimationView extends VBox {
     private static final double BAR_HEIGHT = 70.0;
     private static final double TOP_MARGIN = 24.0;
     private static final double LEFT_MARGIN = 6.0;
-    private static final double BASE_SECONDS_PER_UNIT = 0.45;
+    private static final double BASE_SECONDS_PER_UNIT = 1.0 / 3.0;
 
     private static final Color[] PALETTE = {
             Color.web("#FF9500"), Color.web("#4FC3F7"), Color.web("#81C784"),
@@ -41,6 +41,7 @@ public class GanttChartAnimationView extends VBox {
     private AnimationTimer timer;
     private long animationStartNanos;
     private double elapsedUnits;
+    private Runnable onAnimationFinished;
 
     public GanttChartAnimationView(List<ganttChart.GanttSlice> slices) {
         this.slices = slices;
@@ -94,6 +95,9 @@ public class GanttChartAnimationView extends VBox {
                     elapsedUnits = totalTime;
                     drawUpTo(elapsedUnits);
                     stop();
+                    if (onAnimationFinished != null) {
+                        onAnimationFinished.run();
+                    }
                     return;
                 }
                 drawUpTo(elapsedUnits);
@@ -186,5 +190,9 @@ public class GanttChartAnimationView extends VBox {
     private String buttonStyle(String bg, String fg) {
         return "-fx-background-color: " + bg + "; -fx-text-fill: " + fg
                 + "; -fx-background-radius: 16; -fx-font-weight: bold;";
+    }
+
+    public void setOnAnimationFinished(Runnable onAnimationFinished) {
+        this.onAnimationFinished = onAnimationFinished;
     }
 }
