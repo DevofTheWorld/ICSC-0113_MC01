@@ -37,7 +37,7 @@ public class ganttChart {
     public static String solveRoundRobin(String[] names, int[] arrival, int[] burst, int quantum) {
         validateInputs(names, arrival, burst, quantum);
         List<Slice> slices = buildSlices(names, arrival, burst, quantum);
-        return buildChartAndMetricsReport(slices, names, arrival, burst);
+        return buildRoundRobinReport(slices, names, arrival, burst);
     }
 
     // Starts to slice burst time of each process based on the given time quantum
@@ -104,7 +104,7 @@ public class ganttChart {
         return slices;
     }
 
-    private static String buildChartAndMetricsReport(List<Slice> slices, String[] names, int[] arrival, int[] burst) {
+    private static String buildRoundRobinReport(List<Slice> slices, String[] names, int[] arrival, int[] burst) {
         StringBuilder topLine = new StringBuilder();
         StringBuilder middleLine = new StringBuilder();
         StringBuilder bottomLine = new StringBuilder();
@@ -137,6 +137,10 @@ public class ganttChart {
 
         int[] completionTime = computeCompletionTimes(slices, burst.length);
 
+        report.append(buildLinearGanttLine(slices)).append(System.lineSeparator());
+        report.append(System.lineSeparator());
+        report.append(buildExecutionSegmentsReport(slices, burst)).append(System.lineSeparator());
+        report.append(System.lineSeparator());
         report.append("Gantt Chart (ASCII):").append(System.lineSeparator());
         report.append(topLine).append(System.lineSeparator());
         report.append(middleLine).append(System.lineSeparator());
@@ -156,6 +160,35 @@ public class ganttChart {
             }
         }
         return completionTime;
+    }
+
+    private static String buildLinearGanttLine(List<Slice> slices) {
+        StringBuilder line = new StringBuilder();
+        if (slices.isEmpty()) {
+            return line.toString();
+        }
+        line.append(slices.get(0).start);
+        for (Slice slice : slices) {
+            line.append(" | ").append(slice.name).append(" | ").append(slice.end);
+        }
+        return line.toString();
+    }
+
+    private static String buildExecutionSegmentsReport(List<Slice> slices, int[] burst) {
+        int[] remaining = Arrays.copyOf(burst, burst.length);
+        StringBuilder report = new StringBuilder();
+        report.append("Execution Segments:").append(System.lineSeparator());
+        report.append(String.format("%-12s%-10s%-10s%-16s%n", "Process", "Start", "End", "Remaining BT"));
+        for (Slice slice : slices) {
+            int remainingAfterSegment = -1;
+            if (slice.processIndex >= 0) {
+                remaining[slice.processIndex] -= (slice.end - slice.start);
+                remainingAfterSegment = remaining[slice.processIndex];
+            }
+            String remainingText = remainingAfterSegment >= 0 ? String.valueOf(remainingAfterSegment) : "-";
+            report.append(String.format("%-12s%-10d%-10d%-16s%n", slice.name, slice.start, slice.end, remainingText));
+        }
+        return report.toString().stripTrailing();
     }
 
     private static String buildMetricsReport(String[] names, int[] arrival, int[] burst, int[] completionTime) {
