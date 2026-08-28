@@ -1,4 +1,7 @@
 package app;
+
+import java.util.Arrays;
+
 //
 public class RoundRobinInputFlow {
     private static final int MAX_PROCESSES = 6;
@@ -8,6 +11,13 @@ public class RoundRobinInputFlow {
     private boolean expectingArrival;
     private int[] arrivalTimes;
     private int[] burstTimes;
+
+    // Snapshot of the most recently completed run, kept around after reset()
+    // so the GUI can render/replay the Gantt chart animation for it.
+    private String[] lastNames;
+    private int[] lastArrivalTimes;
+    private int[] lastBurstTimes;
+    private int lastQuantum;
 
     public RoundRobinInputFlow() {
         reset();
@@ -75,10 +85,36 @@ public class RoundRobinInputFlow {
 
         try {
             ganttChart.printRoundRobin(arrivalTimes, burstTimes, value);
+
+            String[] names = new String[processCount];
+            for (int i = 0; i < processCount; i++) {
+                names[i] = "P" + (i + 1);
+            }
+            lastNames = names;
+            lastArrivalTimes = Arrays.copyOf(arrivalTimes, processCount);
+            lastBurstTimes = Arrays.copyOf(burstTimes, processCount);
+            lastQuantum = value;
+
             reset();
             return FlowResult.completed(currentPrompt());
         } catch (IllegalArgumentException ex) {
             return FlowResult.error(ex.getMessage());
         }
+    }
+
+    public String[] getLastNames() {
+        return lastNames;
+    }
+
+    public int[] getLastArrivalTimes() {
+        return lastArrivalTimes;
+    }
+
+    public int[] getLastBurstTimes() {
+        return lastBurstTimes;
+    }
+
+    public int getLastQuantum() {
+        return lastQuantum;
     }
 }

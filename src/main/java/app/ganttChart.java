@@ -40,6 +40,22 @@ public class ganttChart {
         return buildRoundRobinReport(slices, names, arrival, burst);
     }
 
+    // Public entry point used by the GUI so the animation replays the exact
+    // same schedule that the text report is built from (no duplicated logic).
+    public static List<GanttSlice> computeSlices(String[] names, int[] arrival, int[] burst, int quantum) {
+        validateInputs(names, arrival, burst, quantum);
+        List<Slice> slices = buildSlices(names, arrival, burst, quantum);
+        List<GanttSlice> result = new ArrayList<>(slices.size());
+        for (Slice slice : slices) {
+            result.add(new GanttSlice(slice.name, slice.start, slice.end, slice.processIndex));
+        }
+        return result;
+    }
+
+    // Immutable, public view of a scheduled slice for use outside this class (e.g. animation).
+    public record GanttSlice(String name, int start, int end, int processIndex) {
+    }
+
     // Starts to slice burst time of each process based on the given time quantum
 
     private static List<Slice> buildSlices(String[] names, int[] arrival, int[] burst, int quantum) {

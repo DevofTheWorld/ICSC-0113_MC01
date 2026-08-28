@@ -95,6 +95,11 @@ public class RoundRobinCalculatorController {
 
         if (result.completed()) {
             indicatorField.setText("Solved. Enter new values (1-6).");
+            GanttChartResultStage.show(
+                    inputFlow.getLastNames(),
+                    inputFlow.getLastArrivalTimes(),
+                    inputFlow.getLastBurstTimes(),
+                    inputFlow.getLastQuantum());
         }
     }
 
