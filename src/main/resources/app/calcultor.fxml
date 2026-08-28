@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" style="-fx-background-color: #202124;" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.RoundRobinCalculatorController">
+   <center>
+      <GridPane hgap="10.0" vgap="10.0" BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+        </rowConstraints>
+         <children>
+            <Button fx:id="clearButton" minHeight="75.0" minWidth="110.0" mnemonicParsing="false" style="-fx-background-color: #FF9500; -fx-text-fill: black; -fx-background-radius: 50;" text="AC" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+            <Button fx:id="addButton" minHeight="75.0" minWidth="110.0" mnemonicParsing="false" style="-fx-background-color: #FF9500; -fx-text-fill: black; -fx-background-radius: 50;" text="+" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+            <Button fx:id="subtractButton" minHeight="75.0" minWidth="110.0" mnemonicParsing="false" style="-fx-background-color: #FF9500; -fx-text-fill: black; -fx-background-radius: 50;" text="-" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+            <Button fx:id="sevenButton" minHeight="75.0" minWidth="110.0" mnemonicParsing="false" style="-fx-background-color: #303134; -fx-text-fill: white; -fx-background-radius: 50;" text="7" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+            <Button fx:id="eightButton" minHeight="75.0" minWidth="110.0" mnemonicParsing="false" style="-fx-background-color: #303134; -fx-text-fill: white; -fx-background-radius: 50;" text="8" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+            <Button fx:id="nineButton" minHeight="75.0" minWidth="110.0" mnemonicParsing="false" style="-fx-background-color: #303134; -fx-text-fill: white; -fx-background-radius: 50;" text="9" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+            <Button fx:id="fourButton" minHeight="75.0" minWidth="110.0" mnemonicParsing="false" style="-fx-background-color: #303134; -fx-text-fill: white; -fx-background-radius: 50;" text="4" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+            <Button fx:id="fiveButton" minHeight="75.0" minWidth="110.0" mnemonicParsing="false" style="-fx-background-color: #303134; -fx-text-fill: white; -fx-background-radius: 50;" text="5" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+            <Button fx:id="sixButton" minHeight="75.0" minWidth="110.0" mnemonicParsing="false" style="-fx-background-color: #303134; -fx-text-fill: white; -fx-background-radius: 50;" text="6" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+            <Button fx:id="oneButton" minHeight="75.0" minWidth="110.0" mnemonicParsing="false" style="-fx-background-color: #303134; -fx-text-fill: white; -fx-background-radius: 50;" text="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+            <Button fx:id="twoButton" minHeight="75.0" minWidth="110.0" mnemonicParsing="false" style="-fx-background-color: #303134; -fx-text-fill: white; -fx-background-radius: 50;" text="2" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+            <Button fx:id="threeButton" minHeight="75.0" minWidth="110.0" mnemonicParsing="false" style="-fx-background-color: #303134; -fx-text-fill: white; -fx-background-radius: 50;" text="3" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+            <Button fx:id="deciButton" minHeight="75.0" minWidth="110.0" mnemonicParsing="false" style="-fx-background-color: #303134; -fx-text-fill: white; -fx-background-radius: 50;" text="." GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+            <Button fx:id="zeroButton" minHeight="75.0" minWidth="110.0" mnemonicParsing="false" style="-fx-background-color: #303134; -fx-text-fill: white; -fx-background-radius: 50;" text="0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+            <Button fx:id="enterButton" minHeight="75.0" minWidth="110.0" mnemonicParsing="false" style="-fx-background-color: #FF9500; -fx-text-fill: black; -fx-background-radius: 50;" text="Enter" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </GridPane>
+   </center>
+   <top>
+      <VBox alignment="CENTER" prefHeight="100.0" prefWidth="100.0">
+         <children>
+            <Label fx:id="indicatorField" maxWidth="-Infinity" style="-fx-text-fill: #a5a5a5;" text="Number of processes (1-6)">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+            <TextField fx:id="displayValue" alignment="CENTER_RIGHT" prefHeight="120.0" prefWidth="400.0" style="-fx-background-color: #202124; -fx-text-fill: #FFFFFF;" text="0">
+               <font>
+                  <Font size="32.0" />
+               </font>
+            </TextField>
+         </children>
+      </VBox>
+   </top>
+</BorderPane>

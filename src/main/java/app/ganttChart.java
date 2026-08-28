@@ -17,17 +17,27 @@ public class ganttChart {
     }
 
     public static void printRoundRobin(int[] arrival, int[] burst, int quantum) { // creates a name for each process
+        String report = solveRoundRobin(arrival, burst, quantum);
+        System.out.print(report);
+    }
+
+    public static void printRoundRobin(String[] names, int[] arrival, int[] burst, int quantum) { // stores the data in List
+        String report = solveRoundRobin(names, arrival, burst, quantum);
+        System.out.print(report);
+    }
+
+    public static String solveRoundRobin(int[] arrival, int[] burst, int quantum) {
         String[] names = new String[burst.length];
         for (int i = 0; i < burst.length; i++) {
             names[i] = "P" + (i + 1);
         }
-        printRoundRobin(names, arrival, burst, quantum);
+        return solveRoundRobin(names, arrival, burst, quantum);
     }
 
-    public static void printRoundRobin(String[] names, int[] arrival, int[] burst, int quantum) { // stores the data in List
+    public static String solveRoundRobin(String[] names, int[] arrival, int[] burst, int quantum) {
         validateInputs(names, arrival, burst, quantum);
         List<Slice> slices = buildSlices(names, arrival, burst, quantum);
-        printChartAndMetrics(slices, names, arrival, burst);
+        return buildChartAndMetricsReport(slices, names, arrival, burst);
     }
 
     // Starts to slice burst time of each process based on the given time quantum
@@ -94,11 +104,12 @@ public class ganttChart {
         return slices;
     }
 
-    private static void printChartAndMetrics(List<Slice> slices, String[] names, int[] arrival, int[] burst) {
+    private static String buildChartAndMetricsReport(List<Slice> slices, String[] names, int[] arrival, int[] burst) {
         StringBuilder topLine = new StringBuilder();
         StringBuilder middleLine = new StringBuilder();
         StringBuilder bottomLine = new StringBuilder();
         StringBuilder timeLine = new StringBuilder();
+        StringBuilder report = new StringBuilder();
         List<Integer> boundaryPositions = new ArrayList<>();
         List<Integer> boundaryTimes = new ArrayList<>();
         int cursor = 0;
@@ -126,13 +137,14 @@ public class ganttChart {
 
         int[] completionTime = computeCompletionTimes(slices, burst.length);
 
-        System.out.println("Gantt Chart (ASCII):");
-        System.out.println(topLine);
-        System.out.println(middleLine);
-        System.out.println(bottomLine);
-        System.out.println(timeLine.toString().stripTrailing());
-        System.out.println();
-        printMetrics(names, arrival, burst, completionTime);
+        report.append("Gantt Chart (ASCII):").append(System.lineSeparator());
+        report.append(topLine).append(System.lineSeparator());
+        report.append(middleLine).append(System.lineSeparator());
+        report.append(bottomLine).append(System.lineSeparator());
+        report.append(timeLine.toString().stripTrailing()).append(System.lineSeparator());
+        report.append(System.lineSeparator());
+        report.append(buildMetricsReport(names, arrival, burst, completionTime));
+        return report.toString();
     }
 
     private static int[] computeCompletionTimes(List<Slice> slices, int n) {
@@ -146,21 +158,23 @@ public class ganttChart {
         return completionTime;
     }
 
-    private static void printMetrics(String[] names, int[] arrival, int[] burst, int[] completionTime) {
+    private static String buildMetricsReport(String[] names, int[] arrival, int[] burst, int[] completionTime) {
         double totalTat = 0;
         double totalWt = 0;
-        System.out.println("Process Analysis:");
-        System.out.printf("%-8s%-8s%-8s%-8s%-12s%-12s%n", "Process", "AT", "BT", "CT", "TAT", "WT");
+        StringBuilder report = new StringBuilder();
+        report.append("Process Analysis:").append(System.lineSeparator());
+        report.append(String.format("%-8s%-8s%-8s%-8s%-12s%-12s%n", "Process", "AT", "BT", "CT", "TAT", "WT"));
         for (int i = 0; i < names.length; i++) {
             int tat = completionTime[i] - arrival[i];
             int wt = tat - burst[i];
             totalTat += tat;
             totalWt += wt;
-            System.out.printf("%-8s%-8d%-8d%-8d%-12d%-12d%n",
-                    names[i], arrival[i], burst[i], completionTime[i], tat, wt);
+            report.append(String.format("%-8s%-8d%-8d%-8d%-12d%-12d%n",
+                    names[i], arrival[i], burst[i], completionTime[i], tat, wt));
         }
-        System.out.printf("Average Waiting Time: %.2f%n", totalWt / names.length);
-        System.out.printf("Average Turnaround Time: %.2f%n", totalTat / names.length);
+        report.append(String.format("Average Waiting Time: %.2f%n", totalWt / names.length));
+        report.append(String.format("Average Turnaround Time: %.2f%n", totalTat / names.length));
+        return report.toString();
     }
 
     private static String center(String text, int width) {
