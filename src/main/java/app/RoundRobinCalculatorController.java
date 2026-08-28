@@ -10,6 +10,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -230,6 +231,7 @@ public class RoundRobinCalculatorController {
 
         resultTable.getColumns().addAll(processCol, arrivalCol, burstCol, completionCol, turnaroundCol, waitingCol);
         resultTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+        resultTable.setFixedCellSize(28);
         tableHeading.setFont(Font.font("System", FontWeight.BOLD, 14));
     }
 
@@ -241,6 +243,14 @@ public class RoundRobinCalculatorController {
             resultTable.getItems().add(new GanttChartResultStage.ProcessRow(
                     names[i], arrival[i], burst[i], completionTime[i], turnaround, waiting));
         }
+        resizeResultTable(names.length);
+    }
+
+    private void resizeResultTable(int rowCount) {
+        double tableHeight = resultTable.getFixedCellSize() * (rowCount + 1) + 2;
+        resultTable.setMinHeight(Region.USE_PREF_SIZE);
+        resultTable.setPrefHeight(tableHeight);
+        resultTable.setMaxHeight(tableHeight);
     }
 
     private void fillAveragesLabel(String[] names, int[] arrival, int[] burst, int[] completionTime) {

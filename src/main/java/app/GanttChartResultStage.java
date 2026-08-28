@@ -6,6 +6,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.Region;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -79,7 +80,10 @@ public final class GanttChartResultStage {
 
     private static TableView<ProcessRow> buildTable(String[] names, int[] arrival, int[] burst, int[] completionTime) {
         TableView<ProcessRow> table = new TableView<>();
-        table.setPrefHeight(180);
+        table.setFixedCellSize(28);
+        table.setMinHeight(Region.USE_PREF_SIZE);
+        table.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        table.setMaxHeight(Region.USE_PREF_SIZE);
         table.setStyle("-fx-background-color: #202124; -fx-control-inner-background: #202124; "
                 + "-fx-text-fill: white; -fx-table-cell-border-color: #303134;");
 
@@ -102,6 +106,7 @@ public final class GanttChartResultStage {
         waitingCol.setCellValueFactory(new PropertyValueFactory<>("waiting"));
 
         table.getColumns().addAll(List.of(processCol, arrivalCol, burstCol, completionCol, turnaroundCol, waitingCol));
+        table.setPrefHeight(table.getFixedCellSize() * (names.length + 1) + 2);
 
         for (int i = 0; i < names.length; i++) {
             int turnaround = completionTime[i] - arrival[i];

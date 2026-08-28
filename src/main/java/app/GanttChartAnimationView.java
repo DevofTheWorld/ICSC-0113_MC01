@@ -41,14 +41,14 @@ public class GanttChartAnimationView extends VBox {
     private AnimationTimer timer;
     private long animationStartNanos;
     private double elapsedUnits;
+    private double visibleUnits;
     private Runnable onAnimationFinished;
 
     public GanttChartAnimationView(List<ganttChart.GanttSlice> slices) {
         this.slices = slices;
         this.totalTime = slices.isEmpty() ? 0 : slices.get(slices.size() - 1).end();
 
-        double width = LEFT_MARGIN * 2 + Math.max(1, totalTime) * UNIT_WIDTH;
-        this.canvas = new Canvas(width, TOP_MARGIN + BAR_HEIGHT + 28);
+        this.canvas = new Canvas(1, TOP_MARGIN + BAR_HEIGHT + 28);
 
         Button playButton = new Button("Play Animation");
         playButton.setStyle(buttonStyle("#FF9500", "black"));
@@ -65,11 +65,14 @@ public class GanttChartAnimationView extends VBox {
         HBox controls = new HBox(10, playButton, skipButton, speedLabel, speedSlider);
         controls.setPadding(new Insets(10, 0, 0, 0));
 
+        setFillWidth(true);
         setSpacing(6);
         setPadding(new Insets(4));
         getChildren().addAll(canvas, controls);
 
-        drawUpTo(0);
+        widthProperty().addListener((obs, oldWidth, newWidth) -> redraw());
+        heightProperty().addListener((obs, oldHeight, newHeight) -> redraw());
+        redraw();
     }
 
     /** Starts (or restarts) the left-to-right reveal animation. */
@@ -82,6 +85,7 @@ public class GanttChartAnimationView extends VBox {
         }
         elapsedUnits = 0;
         animationStartNanos = -1;
+        visibleUnits = 0;
         timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
@@ -93,14 +97,16 @@ public class GanttChartAnimationView extends VBox {
                 elapsedUnits = secondsElapsed * unitsPerSecond;
                 if (elapsedUnits >= totalTime) {
                     elapsedUnits = totalTime;
-                    drawUpTo(elapsedUnits);
+                    visibleUnits = elapsedUnits;
+                    redraw();
                     stop();
                     if (onAnimationFinished != null) {
                         onAnimationFinished.run();
                     }
                     return;
                 }
-                drawUpTo(elapsedUnits);
+                visibleUnits = elapsedUnits;
+                redraw();
             }
         };
         timer.start();
@@ -111,7 +117,15 @@ public class GanttChartAnimationView extends VBox {
         if (timer != null) {
             timer.stop();
         }
-        drawUpTo(totalTime);
+        visibleUnits = totalTime;
+        redraw();
+    }
+
+    private void redraw() {
+        double usableWidth = Math.max(1, getWidth() - snappedLeftInset() - snappedRightInset());
+        canvas.setWidth(usableWidth);
+        canvas.setHeight(TOP_MARGIN + BAR_HEIGHT + 28);
+        drawUpTo(visibleUnits);
     }
 
     private void drawUpTo(double revealUpToUnits) {
@@ -123,12 +137,13 @@ public class GanttChartAnimationView extends VBox {
             return;
         }
 
+        double effectiveUnitWidth = computeUnitWidth();
         double barTop = TOP_MARGIN;
         double x = LEFT_MARGIN;
 
         for (ganttChart.GanttSlice slice : slices) {
-            double sliceWidth = (slice.end() - slice.start()) * UNIT_WIDTH;
-            double visibleWidth = clampedVisibleWidth(slice, revealUpToUnits, sliceWidth);
+            double sliceWidth = (slice.end() - slice.start()) * effectiveUnitWidth;
+            double visibleWidth = clampedVisibleWidth(slice, revealUpToUnits, sliceWidth, effectiveUnitWidth);
             boolean isIdle = "idle".equals(slice.name());
             Color color = isIdle ? IDLE_COLOR : PALETTE[Math.max(slice.processIndex(), 0) % PALETTE.length];
 
@@ -165,21 +180,30 @@ public class GanttChartAnimationView extends VBox {
 
         // Playhead line showing current animation position.
         if (revealUpToUnits > 0 && revealUpToUnits < totalTime) {
-            double playheadX = LEFT_MARGIN + revealUpToUnits * UNIT_WIDTH;
+            double playheadX = LEFT_MARGIN + revealUpToUnits * effectiveUnitWidth;
             gc.setStroke(Color.WHITE);
             gc.setLineWidth(2);
             gc.strokeLine(playheadX, barTop - 8, playheadX, barTop + BAR_HEIGHT + 4);
         }
     }
 
-    private double clampedVisibleWidth(ganttChart.GanttSlice slice, double revealUpToUnits, double sliceWidth) {
+    private double computeUnitWidth() {
+        if (totalTime <= 0) {
+            return UNIT_WIDTH;
+        }
+        double availableWidth = Math.max(1, canvas.getWidth() - LEFT_MARGIN * 2);
+        double fitWidth = availableWidth / totalTime;
+        return Math.min(UNIT_WIDTH, fitWidth);
+    }
+
+    private double clampedVisibleWidth(ganttChart.GanttSlice slice, double revealUpToUnits, double sliceWidth, double effectiveUnitWidth) {
         if (revealUpToUnits <= slice.start()) {
             return 0;
         }
         if (revealUpToUnits >= slice.end()) {
             return sliceWidth;
         }
-        return (revealUpToUnits - slice.start()) * UNIT_WIDTH;
+        return (revealUpToUnits - slice.start()) * effectiveUnitWidth;
     }
 
     private double textHalfWidth(String text) {
