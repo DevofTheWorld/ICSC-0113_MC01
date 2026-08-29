@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 //
 public class RoundRobinInputFlow {
-    private static final int MAX_PROCESSES = 6;
+    private static final int maxProcesses = 6;
 
     private int processCount;
     private int currentProcessIndex;
@@ -49,7 +49,7 @@ public class RoundRobinInputFlow {
             if (value <= 0) {
                 return FlowResult.error("Process count must be > 0.");
             }
-            if (value > MAX_PROCESSES) {
+            if (value > maxProcesses) {
                 return FlowResult.error("Maximum process count is 6.");
             }
             processCount = value;

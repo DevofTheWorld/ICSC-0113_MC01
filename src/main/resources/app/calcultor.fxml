@@ -44,7 +44,7 @@
                   <Font size="24.0" />
                </font>
             </Button>
-            <Button fx:id="subtractButton" minHeight="75.0" minWidth="110.0" mnemonicParsing="false" style="-fx-background-color: #FF9500; -fx-text-fill: black; -fx-background-radius: 50;" text="-" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+            <Button fx:id="subtractButton" minHeight="75.0" minWidth="110.0" mnemonicParsing="false" style="-fx-background-color: #FF9500; -fx-text-fill: black; -fx-background-radius: 50;" text="DEL" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
                <font>
                   <Font size="24.0" />
                </font>
