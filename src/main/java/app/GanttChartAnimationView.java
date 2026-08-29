@@ -7,6 +7,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -21,17 +23,18 @@ import java.util.List;
  */
 public class GanttChartAnimationView extends VBox {
 
-    private static final double UNIT_WIDTH = 56.0;
-    private static final double BAR_HEIGHT = 70.0;
-    private static final double TOP_MARGIN = 24.0;
-    private static final double LEFT_MARGIN = 6.0;
-    private static final double BASE_SECONDS_PER_UNIT = 1.0 / 3.0;
+    private static final double unitWidth = 56.0;
+    private static final double barHeight = 70.0;
+    private static final double topMargin = 24.0;
+    private static final double leftMargin = 6.0;
+    private static final double rightLabelGutter = 24.0;
+    private static final double baseSecondsPerUnit = 1.0 / 3.0;
 
-    private static final Color[] PALETTE = {
+    private static final Color[] palette = {
             Color.web("#FF9500"), Color.web("#4FC3F7"), Color.web("#81C784"),
             Color.web("#BA68C8"), Color.web("#FFD54F"), Color.web("#F06292")
     };
-    private static final Color IDLE_COLOR = Color.web("#3a3a3d");
+    private static final Color idleColor = Color.web("#3a3a3d");
 
     private final List<ganttChart.GanttSlice> slices;
     private final int totalTime;
@@ -48,21 +51,27 @@ public class GanttChartAnimationView extends VBox {
         this.slices = slices;
         this.totalTime = slices.isEmpty() ? 0 : slices.get(slices.size() - 1).end();
 
-        this.canvas = new Canvas(1, TOP_MARGIN + BAR_HEIGHT + 28);
+        this.canvas = new Canvas(1, topMargin + barHeight + 28);
 
         Button playButton = new Button("Play Animation");
         playButton.setStyle(buttonStyle("#FF9500", "black"));
         playButton.setOnAction(e -> play());
+        playButton.setMinWidth(Region.USE_PREF_SIZE);
 
         Button skipButton = new Button("Skip to End");
         skipButton.setStyle(buttonStyle("#303134", "white"));
         skipButton.setOnAction(e -> showFullChart());
+        skipButton.setMinWidth(Region.USE_PREF_SIZE);
 
         speedSlider.setPrefWidth(120);
         Text speedLabel = new Text("Speed");
         speedLabel.setFill(Color.web("#a5a5a5"));
 
-        HBox controls = new HBox(10, playButton, skipButton, speedLabel, speedSlider);
+        HBox actionRow = new HBox(10, playButton, skipButton);
+        HBox speedRow = new HBox(10, speedLabel, speedSlider);
+        HBox.setHgrow(speedSlider, Priority.ALWAYS);
+
+        VBox controls = new VBox(8, actionRow, speedRow);
         controls.setPadding(new Insets(10, 0, 0, 0));
 
         setFillWidth(true);
@@ -93,7 +102,7 @@ public class GanttChartAnimationView extends VBox {
                     animationStartNanos = now;
                 }
                 double secondsElapsed = (now - animationStartNanos) / 1_000_000_000.0;
-                double unitsPerSecond = 1.0 / (BASE_SECONDS_PER_UNIT / speedSlider.getValue());
+                double unitsPerSecond = 1.0 / (baseSecondsPerUnit / speedSlider.getValue());
                 elapsedUnits = secondsElapsed * unitsPerSecond;
                 if (elapsedUnits >= totalTime) {
                     elapsedUnits = totalTime;
@@ -124,7 +133,7 @@ public class GanttChartAnimationView extends VBox {
     private void redraw() {
         double usableWidth = Math.max(1, getWidth() - snappedLeftInset() - snappedRightInset());
         canvas.setWidth(usableWidth);
-        canvas.setHeight(TOP_MARGIN + BAR_HEIGHT + 28);
+        canvas.setHeight(topMargin + barHeight + 28);
         drawUpTo(visibleUnits);
     }
 
@@ -137,38 +146,42 @@ public class GanttChartAnimationView extends VBox {
             return;
         }
 
-        double effectiveUnitWidth = computeUnitWidth();
-        double barTop = TOP_MARGIN;
-        double x = LEFT_MARGIN;
+        double closingLabelWidth = measureTextWidth(String.valueOf(totalTime), Font.font("System", 11));
+        double labelGutter = Math.max(rightLabelGutter, closingLabelWidth + 8.0);
+        double effectiveUnitWidth = computeUnitWidth(labelGutter);
+        double chartWidth = totalTime * effectiveUnitWidth;
+        double renderedWidth = chartWidth + labelGutter;
+        double x = Math.max(leftMargin, (canvas.getWidth() - renderedWidth) / 2.0);
+        double barTop = topMargin;
 
         for (ganttChart.GanttSlice slice : slices) {
             double sliceWidth = (slice.end() - slice.start()) * effectiveUnitWidth;
             double visibleWidth = clampedVisibleWidth(slice, revealUpToUnits, sliceWidth, effectiveUnitWidth);
             boolean isIdle = "idle".equals(slice.name());
-            Color color = isIdle ? IDLE_COLOR : PALETTE[Math.max(slice.processIndex(), 0) % PALETTE.length];
+            Color color = isIdle ? idleColor : palette[Math.max(slice.processIndex(), 0) % palette.length];
 
             // Faint outline for the full slice so the eventual shape is visible before it fills in.
             gc.setFill(color.deriveColor(0, 1, 1, 0.18));
-            gc.fillRoundRect(x, barTop, sliceWidth, BAR_HEIGHT, 8, 8);
+            gc.fillRoundRect(x, barTop, sliceWidth, barHeight, 8, 8);
 
             if (visibleWidth > 0) {
                 gc.setFill(color);
-                gc.fillRoundRect(x, barTop, visibleWidth, BAR_HEIGHT, 8, 8);
+                gc.fillRoundRect(x, barTop, visibleWidth, barHeight, 8, 8);
             }
 
             gc.setStroke(Color.web("#000000", 0.5));
             gc.setLineWidth(1);
-            gc.strokeRoundRect(x, barTop, sliceWidth, BAR_HEIGHT, 8, 8);
+            gc.strokeRoundRect(x, barTop, sliceWidth, barHeight, 8, 8);
 
             if (!isIdle && (visibleWidth >= sliceWidth - 0.5 || revealUpToUnits >= slice.end())) {
                 gc.setFill(Color.BLACK);
                 gc.setFont(Font.font("System", FontWeight.BOLD, 15));
-                gc.fillText(slice.name(), x + sliceWidth / 2.0 - textHalfWidth(slice.name()), barTop + BAR_HEIGHT / 2.0 + 5);
+                gc.fillText(slice.name(), x + sliceWidth / 2.0 - textHalfWidth(slice.name()), barTop + barHeight / 2.0 + 5);
             }
 
             gc.setFill(Color.web("#a5a5a5"));
             gc.setFont(Font.font("System", 11));
-            gc.fillText(String.valueOf(slice.start()), x - 3, barTop + BAR_HEIGHT + 16);
+            gc.fillText(String.valueOf(slice.start()), x - 3, barTop + barHeight + 16);
 
             x += sliceWidth;
         }
@@ -176,24 +189,24 @@ public class GanttChartAnimationView extends VBox {
         // Final closing time label.
         gc.setFill(Color.web("#a5a5a5"));
         gc.setFont(Font.font("System", 11));
-        gc.fillText(String.valueOf(totalTime), x - 3, barTop + BAR_HEIGHT + 16);
+        gc.fillText(String.valueOf(totalTime), x - 3, barTop + barHeight + 16);
 
         // Playhead line showing current animation position.
         if (revealUpToUnits > 0 && revealUpToUnits < totalTime) {
-            double playheadX = LEFT_MARGIN + revealUpToUnits * effectiveUnitWidth;
+            double playheadX = x - chartWidth + revealUpToUnits * effectiveUnitWidth;
             gc.setStroke(Color.WHITE);
             gc.setLineWidth(2);
-            gc.strokeLine(playheadX, barTop - 8, playheadX, barTop + BAR_HEIGHT + 4);
+            gc.strokeLine(playheadX, barTop - 8, playheadX, barTop + barHeight + 4);
         }
     }
 
-    private double computeUnitWidth() {
+    private double computeUnitWidth(double rightLabelGutter) {
         if (totalTime <= 0) {
-            return UNIT_WIDTH;
+            return unitWidth;
         }
-        double availableWidth = Math.max(1, canvas.getWidth() - LEFT_MARGIN * 2);
+        double availableWidth = Math.max(1, canvas.getWidth() - leftMargin * 2 - rightLabelGutter);
         double fitWidth = availableWidth / totalTime;
-        return Math.min(UNIT_WIDTH, fitWidth);
+        return Math.min(unitWidth, fitWidth);
     }
 
     private double clampedVisibleWidth(ganttChart.GanttSlice slice, double revealUpToUnits, double sliceWidth, double effectiveUnitWidth) {
@@ -207,8 +220,13 @@ public class GanttChartAnimationView extends VBox {
     }
 
     private double textHalfWidth(String text) {
-        // Rough estimate to center bold 15px text without needing a full text-measuring pass.
-        return text.length() * 4.0;
+        return measureTextWidth(text, Font.font("System", FontWeight.BOLD, 15)) / 2.0;
+    }
+
+    private double measureTextWidth(String text, Font font) {
+        Text measure = new Text(text);
+        measure.setFont(font);
+        return measure.getLayoutBounds().getWidth();
     }
 
     private String buttonStyle(String bg, String fg) {
